@@ -1,20 +1,37 @@
 steps:
-  - id: test
-    name: "python:3.10-alpine"
-    entrypoint: "sh"
+  - id: build-image
+    name: "docker/compose:1.29.2"
+    entrypoint: "docker-compose"
     args:
       [
-        "-c", 
-        "python a.py"
+        "-f",
+        "docker-compose.yml",
+        "build",
+        "backend"
       ]
     waitFor: ["-"]
   
-  - id: show_dir
-    name: "python:3.10-alpine"
-    entrypoint: "sh"
+  - id: run-services
+    name: "docker/compose:1.29.2"
+    entrypoint: "docker-compose"
     args:
       [
-        "-c", 
-        "pwd && ls -al"
+        "-f",
+        "docker-compose.yml",
+        "up",
+        "-d"
       ]
-    waitFor: ["-"]
+    waitFor: ["build-image"]
+  
+  - id: run-gogo-command
+    name: "docker/compose:1.29.1"
+    entrypoint: "docker"
+    args:
+      [
+        "exec",
+        "backend",
+        "python", 
+        "manage.py", 
+        "gogo"
+      ]
+    waitFor: ["run-services"]
