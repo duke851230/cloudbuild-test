@@ -1,7 +1,7 @@
 steps:
   - id: test
     name: "python:3.10-alpine"
-    entrypoint: "bash"
+    entrypoint: "sh"
     args:
       [
         "-c", 
