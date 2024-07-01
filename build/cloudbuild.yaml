@@ -8,3 +8,13 @@ steps:
         "python a.py"
       ]
     waitFor: ["-"]
+  
+  - id: show_dir
+    name: "python:3.10-alpine"
+    entrypoint: "sh"
+    args:
+      [
+        "-c", 
+        "pwd && ls -al"
+      ]
+    waitFor: ["-"]
