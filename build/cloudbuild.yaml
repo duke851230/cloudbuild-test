@@ -1,0 +1,10 @@
+steps:
+  - id: test
+    name: "python:3.10-alpine"
+    entrypoint: "bash"
+    args:
+      [
+        "-c", 
+        "python a.py"
+      ]
+    waitFor: ["-"]
