@@ -1,3 +1,6 @@
+substitutions:
+  _BACKEND_IMAGE: asia-east1-docker.pkg.dev/tagtoo-staging/duke-repo/my-backend
+
 steps:
   - id: build-image
     name: "docker/compose:1.29.2"
@@ -24,7 +27,7 @@ steps:
     waitFor: ["build-image"]
   
   - id: run-gogo-command
-    name: "docker/compose:1.29.1"
+    name: "gcr.io/cloud-builders/docker"  # GCP 內建的
     entrypoint: "docker"
     args:
       [
@@ -34,15 +37,37 @@ steps:
         "manage.py", 
         "gogo"
       ]
-    waitFor: ["run-services"]
+    waitFor: ["build-image", "run-services"]
   
   - id: run-test
-    name: "docker/compose:1.29.1"
+    name: "gcr.io/cloud-builders/docker"
     entrypoint: "docker"
     args:
       [
         "exec",
         "my-backend",
-        "pytest" 
+        "pytest",
+        "--nomigrations"
       ]
-    waitFor: ["run-services"]
+    waitFor: ["build-image", "run-services"]
+
+  - id: retag-backend-image
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "docker"
+    args: 
+      [
+        "tag", 
+        "my-backend:latest",
+        "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
+      ]
+    waitFor: ["run-test"]
+  
+  - id: push-backend-image
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "docker"
+    args: 
+      [
+        "push", 
+        "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
+      ]
+    waitFor: ["retag-backend-image"]
