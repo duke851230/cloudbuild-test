@@ -6,3 +6,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         print("------------ start run gogo command ------------")
         print("test whether command run successfully or not.")
+        raise Exception("Test Exception.............")
