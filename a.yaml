@@ -1,0 +1,37 @@
+steps:
+  - id: build-backend-image
+    name: "docker/compose:1.29.2"
+    entrypoint: "docker-compose"
+    args:
+      [
+        "-f",
+        "docker-compose.yml",
+        "build",
+        "backend"
+      ]
+  
+  - id: run-gogo-command
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "docker"
+    args:
+      [
+        "exec",
+        "my-backend",
+        "python", 
+        "manage.py", 
+        "gogo"
+      ]
+    waitFor: ["build-backend-image", "run-services"]
+
+  - id: run-services
+    name: "docker/compose:1.29.2"
+    entrypoint: "docker-compose"
+    args:
+      [
+        "-f",
+        "docker-compose.yml",
+        "up",
+        "-d"
+      ]
+  
+  

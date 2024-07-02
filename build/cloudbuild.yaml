@@ -17,20 +17,8 @@ steps:
         "backend"
       ]
   
-  - id: run-services
-    name: "docker/compose:1.29.2"
-    entrypoint: "docker-compose"
-    args:
-      [
-        "-f",
-        "docker-compose.yml",
-        "up",
-        "-d"
-      ]
-    waitFor: ["build-backend-image"]
-  
   - id: run-gogo-command
-    name: "gcr.io/cloud-builders/docker"  # GCP 內建的
+    name: "gcr.io/cloud-builders/docker"
     entrypoint: "docker"
     args:
       [
@@ -41,35 +29,84 @@ steps:
         "gogo"
       ]
     waitFor: ["build-backend-image", "run-services"]
-  
-  - id: run-test
-    name: "gcr.io/cloud-builders/docker"
-    entrypoint: "docker"
+
+  - id: run-services
+    name: "docker/compose:1.29.2"
+    entrypoint: "docker-compose"
     args:
       [
-        "exec",
-        "my-backend",
-        "pytest",
-        "--nomigrations"
+        "-f",
+        "docker-compose.yml",
+        "up",
+        "-d"
       ]
 
-  - id: retag-backend-image
-    name: "gcr.io/cloud-builders/docker"
-    entrypoint: "docker"
-    args: 
-      [
-        "tag", 
-        "my-backend:latest",
-        "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
-      ]
-    waitFor: ["run-test"]
+# steps:
+#   - id: build-backend-image
+#     name: "docker/compose:1.29.2"
+#     entrypoint: "docker-compose"
+#     args:
+#       [
+#         "-f",
+#         "docker-compose.yml",
+#         "build",
+#         "backend"
+#       ]
   
-  # - id: push-backend-image
-  #   name: "gcr.io/cloud-builders/docker"
-  #   entrypoint: "docker"
-  #   args: 
-  #     [
-  #       "push", 
-  #       "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
-  #     ]
-  #   waitFor: ["retag-backend-image"]
+#   - id: run-services
+#     name: "docker/compose:1.29.2"
+#     entrypoint: "docker-compose"
+#     args:
+#       [
+#         "-f",
+#         "docker-compose.yml",
+#         "up",
+#         "-d"
+#       ]
+#     waitFor: ["build-backend-image"]
+  
+#   - id: run-gogo-command
+#     name: "gcr.io/cloud-builders/docker"  # GCP 內建的 Image
+#     entrypoint: "docker"
+#     args:
+#       [
+#         "exec",
+#         "my-backend",
+#         "python", 
+#         "manage.py", 
+#         "gogo"
+#       ]
+#     waitFor: ["build-backend-image", "run-services"]
+  
+#   - id: run-test
+#     name: "gcr.io/cloud-builders/docker"
+#     entrypoint: "docker"
+#     args:
+#       [
+#         "exec",
+#         "my-backend",
+#         "pytest",
+#         "--nomigrations"
+#       ]
+#     waitFor: ["run-gogo-command"]
+
+#   - id: retag-backend-image
+#     name: "gcr.io/cloud-builders/docker"
+#     entrypoint: "docker"
+#     args: 
+#       [
+#         "tag", 
+#         "my-backend:latest",
+#         "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
+#       ]
+#     waitFor: ["run-test"]
+  
+#   - id: push-backend-image
+#     name: "gcr.io/cloud-builders/docker"
+#     entrypoint: "docker"
+#     args: 
+#       [
+#         "push", 
+#         "${_BACKEND_IMAGE}:${BRANCH_NAME}-${SHORT_SHA}"
+#       ]
+#     waitFor: ["retag-backend-image"]
