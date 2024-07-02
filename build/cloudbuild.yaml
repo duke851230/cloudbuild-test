@@ -29,9 +29,20 @@ steps:
     args:
       [
         "exec",
-        "backend",
+        "my-backend",
         "python", 
         "manage.py", 
         "gogo"
+      ]
+    waitFor: ["run-services"]
+  
+  - id: run-test
+    name: "docker/compose:1.29.1"
+    entrypoint: "docker"
+    args:
+      [
+        "exec",
+        "my-backend",
+        "pytest" 
       ]
     waitFor: ["run-services"]

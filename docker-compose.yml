@@ -5,7 +5,7 @@ services:
     image: my-backend
     build:
       context: ./backend
-    container_name: backend
+    container_name: my-backend
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
